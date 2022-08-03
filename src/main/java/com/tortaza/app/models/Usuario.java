@@ -62,6 +62,10 @@ public class Usuario {
     inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Rol> itemsRoles = new HashSet<>(); //HASHSET evita duplicados
 
+    @OneToOne
+    @JoinColumn(name="cartId")
+	private Cart cart;
+
     public Usuario() {
         super();
     }
