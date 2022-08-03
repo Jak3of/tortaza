@@ -2,16 +2,15 @@ package com.tortaza.app.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import com.tortaza.app.helper.Message;
-import com.tortaza.app.interfaces.IPedido;
+
 import com.tortaza.app.interfaces.IPedidoDAO;
 import com.tortaza.app.models.*;
 import com.tortaza.app.service.*;
@@ -26,7 +25,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("")
@@ -52,16 +50,15 @@ public class Indexcontroller {
 		CarritoProducto carrito = CarritoProducto.getInstance();
 		return carrito.getCarrito().getTotal();
 	}
+
 	/*****************************************/
 	@Autowired // inyeccion
 	private UsuarioService iusuario;
-	
+
 	@Autowired
 	private RolService irol;
-	
+
 	/*****************************************/
-	
-	
 
 	@Autowired // inyeccion
 	private ProductoService iproducto;
@@ -92,7 +89,7 @@ public class Indexcontroller {
 	// --------------------------------------------------------------------//
 	// loguearse
 	@PostMapping("/login")
-	public String loguear( Usuario u, Model model) {
+	public String loguear(Usuario u, Model model) {
 		List<Usuario> Aus = iusuario.listar(); // lista los usuarios
 		Usuario usu = new Usuario();// paso1
 		if (iusuario.validU(u)) { // verifica la autentificacion de los datos que vienen de la vista loguearse
@@ -101,16 +98,13 @@ public class Indexcontroller {
 					usu = iusuario.findById(users.getId_usuario());
 				}
 			}
-			/*if (usu.getId_tipousuario() == 1) {
-				model.addAttribute("usuario", usu);
-
-				idu = usu.getId_usuario();
-				return "redirect:perfil";
-			} else {
-				model.addAttribute("usuario", usu);
-				idu = usu.getId_usuario();
-				return "redirect:/administrar/productos";
-			}*/
+			/*
+			 * if (usu.getId_tipousuario() == 1) { model.addAttribute("usuario", usu);
+			 * 
+			 * idu = usu.getId_usuario(); return "redirect:perfil"; } else {
+			 * model.addAttribute("usuario", usu); idu = usu.getId_usuario(); return
+			 * "redirect:/administrar/productos"; }
+			 */
 
 		}
 
@@ -131,9 +125,9 @@ public class Indexcontroller {
 	// REGISTRARSE
 	@PostMapping("/registrarse")
 	public String registrarse(@Valid Usuario us, Model model) {
-		//us.setId_tipousuario(1); // cuando pongamos los datos
+		// us.setId_tipousuario(1); // cuando pongamos los datos
 		us.setEstadousuario(false); // chancara a los valores por
-		//us.setDni(00000000);
+		// us.setDni(00000000);
 		iusuario.guardar(us);
 		model.addAttribute("mensaje", "Ingrese con su usuario y contraseña");
 		return "redirect:/login";
@@ -333,10 +327,10 @@ public class Indexcontroller {
 	// MANTENIMIENTO PRODUCTOS
 	@Autowired
 	private UploadFileService upload;
-	
+
 	@GetMapping("/administrar/productos")
 	public String mantenpro(Model model) {
-		
+
 		List<Producto> productos = iproducto.listar();
 		List<Producto> productosdes = new ArrayList<>();
 		List<Producto> productosbloq = new ArrayList<>();
@@ -364,7 +358,7 @@ public class Indexcontroller {
 	public String guardarp(@Validated @ModelAttribute("Producto") Producto p, BindingResult bindingResult, Model model,
 			@RequestParam("img") MultipartFile file) throws IOException {
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("Producto",p);
+			model.addAttribute("Producto", p);
 			return "crearpro";
 		}
 		// imgen
@@ -384,9 +378,9 @@ public class Indexcontroller {
 			}
 		}
 		p.setEstadoproducto(true);// false= no registra
-		model.addAttribute("message",new Message("El producto se a añadido correctamente.","success"));
-        iproducto.guardar(p);
-        model.addAttribute("Producto", new Producto());
+		model.addAttribute("message", new Message("El producto se a añadido correctamente.", "success"));
+		iproducto.guardar(p);
+		model.addAttribute("Producto", new Producto());
 		return "crearpro";
 	}
 
@@ -397,12 +391,12 @@ public class Indexcontroller {
 		model.addAttribute("producto", producto);
 		return "editarpro";
 	}
-	
+
 	@PostMapping("/actualizarproducto")
-	public String actualizarp(@Validated @ModelAttribute("producto") Producto p, BindingResult bindingResult, Model model,
-			@RequestParam("img") MultipartFile file) throws IOException {
+	public String actualizarp(@Validated @ModelAttribute("producto") Producto p, BindingResult bindingResult,
+			Model model, @RequestParam("img") MultipartFile file) throws IOException {
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("Producto",p);
+			model.addAttribute("Producto", p);
 			return "crearpro";
 		}
 		// imgen
@@ -422,8 +416,8 @@ public class Indexcontroller {
 			}
 		}
 		p.setEstadoproducto(true);// false= no registra
-		model.addAttribute("message",new Message("El producto se ah actualizado correctamente.","success"));
-        iproducto.guardar(p);
+		model.addAttribute("message", new Message("El producto se ah actualizado correctamente.", "success"));
+		iproducto.guardar(p);
 		return "editarpro";
 	}
 
@@ -431,41 +425,41 @@ public class Indexcontroller {
 	public String bloquearPro(@PathVariable int id, Model model) {
 		Producto producto = iproducto.listarId(id).get();
 		producto.setEstadoproducto(false);
-		model.addAttribute("message",new Message("El producto ah sido bloqueado","danger"));
+		model.addAttribute("message", new Message("El producto ah sido bloqueado", "danger"));
 		iproducto.guardar(producto);
 		List<Producto> productos = iproducto.listar();
-        List<Producto> productosdes = new ArrayList<>();
-        List<Producto> productosbloq = new ArrayList<>();
-        for (var p : productos) {
-            if (p.isEstadoproducto()) {
-                productosdes.add(p);
-            } else {
-                productosbloq.add(p);
-            }
-        }
-        model.addAttribute("Productosbloq", productosbloq);
-        model.addAttribute("Productosdes", productosdes);
+		List<Producto> productosdes = new ArrayList<>();
+		List<Producto> productosbloq = new ArrayList<>();
+		for (var p : productos) {
+			if (p.isEstadoproducto()) {
+				productosdes.add(p);
+			} else {
+				productosbloq.add(p);
+			}
+		}
+		model.addAttribute("Productosbloq", productosbloq);
+		model.addAttribute("Productosdes", productosdes);
 		return "mantenimientopro";
 	}
 
 	@GetMapping("/desbloquearproducto/{id}")
 	public String desbloquearPro(@PathVariable int id, Model model) {
-		model.addAttribute("message",new Message("El producto ah sido desbloqueado","success"));
+		model.addAttribute("message", new Message("El producto ah sido desbloqueado", "success"));
 		Producto producto = iproducto.listarId(id).get();
 		producto.setEstadoproducto(true);
 		iproducto.guardar(producto);
 		List<Producto> productos = iproducto.listar();
-        List<Producto> productosdes = new ArrayList<>();
-        List<Producto> productosbloq = new ArrayList<>();
-        for (var p : productos) {
-            if (p.isEstadoproducto()) {
-                productosdes.add(p);
-            } else {
-                productosbloq.add(p);
-            }
-        }
-        model.addAttribute("Productosbloq", productosbloq);
-        model.addAttribute("Productosdes", productosdes);
+		List<Producto> productosdes = new ArrayList<>();
+		List<Producto> productosbloq = new ArrayList<>();
+		for (var p : productos) {
+			if (p.isEstadoproducto()) {
+				productosdes.add(p);
+			} else {
+				productosbloq.add(p);
+			}
+		}
+		model.addAttribute("Productosbloq", productosbloq);
+		model.addAttribute("Productosdes", productosdes);
 		return "mantenimientopro";
 	}
 
@@ -478,13 +472,10 @@ public class Indexcontroller {
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
 		for (var u : usuarios) {
-			/*if (u.getId_tipousuario() == 1) {
-				if (u.getEstadousuario() == true) {
-					us.add(u);
-				} else {
-					usbloq.add(u);
-				}
-			}*/
+			/*
+			 * if (u.getId_tipousuario() == 1) { if (u.getEstadousuario() == true) {
+			 * us.add(u); } else { usbloq.add(u); } }
+			 */
 		}
 		model.addAttribute("Usuarios", us);
 		model.addAttribute("UsuariosBloq", usbloq);
@@ -500,63 +491,60 @@ public class Indexcontroller {
 
 	// guardar
 	@PostMapping("/nuevousuario")
-	public String guardarUsu(
-			@Validated @ModelAttribute("Usuario") Usuario u,
-			BindingResult bindingResult,
+	public String guardarUsu(@Validated @ModelAttribute("Usuario") Usuario u, BindingResult bindingResult,
 			Model model) {
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("Usuario",u);
+			model.addAttribute("Usuario", u);
 			return "crearusu";
 		}
 		u.setEstadousuario(true);// false= no registra
-		//u.setId_tipousuario(1);
+		// u.setId_tipousuario(1);
 		try {
 			iusuario.guardar(u);
-			model.addAttribute("message",new Message("El Usuario se ah creado correctamente.","success"));
-			
+			model.addAttribute("message", new Message("El Usuario se ah creado correctamente.", "success"));
+
 			Usuario userDb = iusuario.findById(u.getId_usuario());
-			if(userDb!=null) {
+			if (userDb != null) {
 				Rol roleDb = irol.findById(1);
-				if (roleDb !=null) {
+				if (roleDb != null) {
 					userDb.addRole(roleDb);
 					iusuario.guardar(userDb);
 					System.out.println("role y user agregados correctamente");
 					return "crearusu";
-					
-					
+
 				}
 				System.out.println("No existe el rol");
-				
-				System.out.println("objeto:"+irol.findById(1)+"");
+
+				System.out.println("objeto:" + irol.findById(1) + "");
 				return "crearusu";
 			}
-			
+
 			return "crearusu";
-		
+
 		} catch (Exception e) {
 			System.out.println("" + e);
-            List<Usuario> usuarios = iusuario.listar();
-            boolean error = false;
-            for (Usuario usuario : usuarios) {
-                if (usuario.getCorreo().equals(u.getCorreo())) {
-                    model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
-                    System.out.println("333333333333333333333333");
-                    error = true;
-                }
-                if (usuario.getDni().toString().equals(u.getDni().toString())) {
-                    model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
-                    System.out.println("11111111111111111111111");
-                    error = true;
-                }
+			List<Usuario> usuarios = iusuario.listar();
+			boolean error = false;
+			for (Usuario usuario : usuarios) {
+				if (usuario.getCorreo().equals(u.getCorreo())) {
+					model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
+					System.out.println("333333333333333333333333");
+					error = true;
+				}
+				if (usuario.getDni().toString().equals(u.getDni().toString())) {
+					model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
+					System.out.println("11111111111111111111111");
+					error = true;
+				}
 
-            }
-            if (error) {
-                model.addAttribute("Usuario", u);
-                System.out.println("000000000000000000000000");
+			}
+			if (error) {
+				model.addAttribute("Usuario", u);
+				System.out.println("000000000000000000000000");
 
-            }
+			}
 
-        }
+		}
 		return "crearusu";
 	}
 
@@ -567,49 +555,47 @@ public class Indexcontroller {
 		model.addAttribute("Usuario", usuario);
 		return "editarusu";
 	}
-	
+
 	@PostMapping("/actuausuario")
-	public String actualizarUsu(
-			@Validated @ModelAttribute("Usuario") Usuario u,
-			BindingResult bindingResult,
+	public String actualizarUsu(@Validated @ModelAttribute("Usuario") Usuario u, BindingResult bindingResult,
 			Model model) {
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("Usuario",u);
+			model.addAttribute("Usuario", u);
 			return "editarusu";
-			
+
 		}
-		/* atento*/
-		//u.setId_tipousuario(1);
+		/* atento */
+		// u.setId_tipousuario(1);
 		u.setEstadousuario(true);
 		try {
 			iusuario.guardar(u);
-			model.addAttribute("message",new Message("El Usuario se ah creado correctamente.","success"));
+			model.addAttribute("message", new Message("El Usuario se ah creado correctamente.", "success"));
 		} catch (Exception e) {
 			Usuario usuarioEdit = iusuario.findById(u.getId_usuario());
-            System.out.println("" + e);
-            List<Usuario> usuarios = iusuario.listar();
-            boolean error = false;
-            for (Usuario usuario : usuarios) {
-                if (usuarioEdit != usuario) {
-                    if (usuario.getCorreo().equals(u.getCorreo())) {
-                        model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
-                        System.out.println("333333333333333333333333");
-                        error = true;
-                    }
-                    if (usuario.getDni().toString().equals(u.getDni().toString())) {
-                        model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
-                        System.out.println("11111111111111111111111");
-                        error = true;
-                    }
-                }
+			System.out.println("" + e);
+			List<Usuario> usuarios = iusuario.listar();
+			boolean error = false;
+			for (Usuario usuario : usuarios) {
+				if (usuarioEdit != usuario) {
+					if (usuario.getCorreo().equals(u.getCorreo())) {
+						model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
+						System.out.println("333333333333333333333333");
+						error = true;
+					}
+					if (usuario.getDni().toString().equals(u.getDni().toString())) {
+						model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
+						System.out.println("11111111111111111111111");
+						error = true;
+					}
+				}
 
-            }
-            if (error) {
-                model.addAttribute("Usuario", u);
-                System.out.println("000000000000000000000000");
+			}
+			if (error) {
+				model.addAttribute("Usuario", u);
+				System.out.println("000000000000000000000000");
 
-            }
-			
+			}
+
 		}
 		return "editarusu";
 	}
@@ -620,18 +606,15 @@ public class Indexcontroller {
 		Usuario usuario = iusuario.findById(id);
 		usuario.setEstadousuario(false);
 		iusuario.guardar(usuario);
-		model.addAttribute("message",new Message("El producto ah sido bloqueado","danger"));
+		model.addAttribute("message", new Message("El producto ah sido bloqueado", "danger"));
 		List<Usuario> usuarios = iusuario.listar();
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
 		for (var u : usuarios) {
-			/*if (u.getId_tipousuario() == 1) {
-				if (u.getEstadousuario() == true) {
-					us.add(u);
-				} else {
-					usbloq.add(u);
-				}
-			}*/
+			/*
+			 * if (u.getId_tipousuario() == 1) { if (u.getEstadousuario() == true) {
+			 * us.add(u); } else { usbloq.add(u); } }
+			 */
 		}
 		model.addAttribute("Usuarios", us);
 		model.addAttribute("UsuariosBloq", usbloq);
@@ -643,18 +626,15 @@ public class Indexcontroller {
 		Usuario usuario = iusuario.findById(id);
 		usuario.setEstadousuario(true);
 		iusuario.guardar(usuario);
-		model.addAttribute("message",new Message("El producto ah sido desbloqueado","success"));
+		model.addAttribute("message", new Message("El producto ah sido desbloqueado", "success"));
 		List<Usuario> usuarios = iusuario.listar();
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
 		for (var u : usuarios) {
-			/*if (u.getId_tipousuario() == 1) {
-				if (u.getEstadousuario() == true) {
-					us.add(u);
-				} else {
-					usbloq.add(u);
-				}
-			}*/
+			/*
+			 * if (u.getId_tipousuario() == 1) { if (u.getEstadousuario() == true) {
+			 * us.add(u); } else { usbloq.add(u); } }
+			 */
 		}
 		model.addAttribute("Usuarios", us);
 		model.addAttribute("UsuariosBloq", usbloq);
@@ -667,14 +647,12 @@ public class Indexcontroller {
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
 		for (var u : usuarios) {
-			/*if (u.getId_tipousuario() > 1) {
-				if (u.getEstadousuario() == true) {
-					us.add(u);
-				} else {
-					usbloq.add(u);
-				}
-
-			}*/
+			/*
+			 * if (u.getId_tipousuario() > 1) { if (u.getEstadousuario() == true) {
+			 * us.add(u); } else { usbloq.add(u); }
+			 * 
+			 * }
+			 */
 		}
 		model.addAttribute("Personal", us);
 		model.addAttribute("PersonalBloq", usbloq);
