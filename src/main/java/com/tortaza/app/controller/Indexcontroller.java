@@ -52,14 +52,16 @@ public class Indexcontroller {
 		CarritoProducto carrito = CarritoProducto.getInstance();
 		return carrito.getCarrito().getTotal();
 	}
-	/***************************************/
+	/*****************************************/
 	@Autowired // inyeccion
 	private UsuarioService iusuario;
 	
 	@Autowired
 	private RolService irol;
 	
-	/***************************************/
+	/*****************************************/
+	
+	
 
 	@Autowired // inyeccion
 	private ProductoService iproducto;
