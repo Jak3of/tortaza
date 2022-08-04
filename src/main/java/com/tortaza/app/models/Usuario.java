@@ -62,8 +62,8 @@ public class Usuario {
     inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Rol> itemsRoles = new HashSet<>(); //HASHSET evita duplicados
 
-    @OneToOne
-    @JoinColumn(name="cartId")
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="cartId", unique = true,nullable = false)
 	private Cart cart;
 
     public Usuario() {
@@ -144,6 +144,14 @@ public class Usuario {
 	}
 	public void setItemsRoles(Set<Rol> itemsRoles) {
 		this.itemsRoles = itemsRoles;
+	}
+
+	public Cart getCart() {
+		return cart;
+	}
+
+	public void setCart(Cart cart) {
+		this.cart = cart;
 	}
     
 

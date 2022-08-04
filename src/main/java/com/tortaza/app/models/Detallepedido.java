@@ -7,6 +7,7 @@ public class Detallepedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_detalle;
+    
     @ManyToOne
     @JoinColumn(name="id_pedido")
     private Pedido pedido;
