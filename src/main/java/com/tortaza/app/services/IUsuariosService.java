@@ -15,4 +15,6 @@ public interface IUsuariosService {
     public int guardar(Usuario u);
 
     public void eliminar(int id);
+
+	public Usuario findByCorreo(String correo);
 }

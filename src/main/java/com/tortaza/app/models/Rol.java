@@ -27,6 +27,8 @@ public class Rol implements Serializable{
     @ManyToMany(mappedBy = "itemsRoles")
     private Set<Usuario> itemsUsuarios = new HashSet<>();
     
+    
+    
     public Rol() {
         // TODO Auto-generated constructor stub
     }
@@ -35,6 +37,8 @@ public class Rol implements Serializable{
         this.rolId = rolId;
         this.rol = rol;
     }
+    
+    
     public Integer getRolId() {
         return rolId;
     }

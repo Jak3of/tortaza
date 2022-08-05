@@ -36,7 +36,9 @@ public class Indexcontroller {
 		Usuario usuariop = new Usuario();
 		return usuariop;
 	}
-
+	
+	
+	
 	int idu = 0;
 
 	@ModelAttribute("carrito")
@@ -71,6 +73,9 @@ public class Indexcontroller {
 
 	@Autowired
 	private IPedidoDAO pedidoDAO;
+	
+	
+	
 
 	// MENU
 	@GetMapping({ "/menu", "", "/" })
@@ -125,7 +130,8 @@ public class Indexcontroller {
 	// REGISTRARSE
 	@PostMapping("/registrarse")
 	public String registrarse(@Valid Usuario us, Model model) {
-		// us.setId_tipousuario(1); // cuando pongamos los datos
+		Rol roluser = irol.findById(1);
+		us.addRole(roluser);
 		us.setEstadousuario(false); // chancara a los valores por
 		// us.setDni(00000000);
 		iusuario.guardar(us);
