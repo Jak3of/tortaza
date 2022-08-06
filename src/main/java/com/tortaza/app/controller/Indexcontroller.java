@@ -139,12 +139,17 @@ public class Indexcontroller {
 			model = iusuario.verificarCorreo(us, model);
 			return "login";
 		}
+		
+		
 		String path="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
 		
 		if (!us.getContrasena().matches(path)) {
 			System.out.println("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero");
 			model.addAttribute("errorcontrasena", new Message("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero",""));
 		}
+		
+		
+		
 		Rol roluser = irol.findById(1);
 		us.addRole(roluser);
 		System.out.println("rol seteado");
@@ -540,6 +545,7 @@ public class Indexcontroller {
 		u.setEstadousuario(true);// false= no registra
 		// u.setId_tipousuario(1);
 		try {
+			u.addRole(irol.findById(1));
 			iusuario.guardar(u);
 			model.addAttribute("message", new Message("El Usuario se ah creado correctamente.", "success"));
 
