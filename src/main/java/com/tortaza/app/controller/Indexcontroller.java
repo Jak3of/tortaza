@@ -16,6 +16,7 @@ import com.tortaza.app.models.*;
 import com.tortaza.app.service.*;
 import com.tortaza.app.services.CarritoProducto;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,7 @@ public class Indexcontroller {
 		Usuario usuariop = new Usuario();
 		return usuariop;
 	}
-	
-	
-	
+
 	int idu = 0;
 
 	@ModelAttribute("carrito")
@@ -74,8 +73,8 @@ public class Indexcontroller {
 	@Autowired
 	private IPedidoDAO pedidoDAO;
 	
-	
-	
+	@Autowired
+	private CartService icart;
 
 	// MENU
 	@GetMapping({ "/menu", "", "/" })
@@ -129,14 +128,49 @@ public class Indexcontroller {
 
 	// REGISTRARSE
 	@PostMapping("/registrarse")
-	public String registrarse(@Valid Usuario us, Model model) {
+	public String registrarse(@Validated @ModelAttribute("usuario") Usuario us, BindingResult bindingResult,
+			Model model) {
+
+
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("usuario", us);
+			model.addAttribute("slideregi","error encontrado");
+			System.out.println("binding");
+			model = iusuario.verificarCorreo(us, model);
+			return "login";
+		}
+		String path="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
+		
+		if (!us.getContrasena().matches(path)) {
+			System.out.println("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero");
+			model.addAttribute("errorcontrasena", new Message("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero",""));
+		}
 		Rol roluser = irol.findById(1);
 		us.addRole(roluser);
+		System.out.println("rol seteado");
 		us.setEstadousuario(false); // chancara a los valores por
 		// us.setDni(00000000);
-		iusuario.guardar(us);
-		model.addAttribute("mensaje", "Ingrese con su usuario y contraseña");
-		return "redirect:/login";
+		try {
+			model.addAttribute("mensaje", "Ingrese con su usuario y contraseña");
+			iusuario.guardar(us);
+			Cart carrito = new Cart();
+			carrito.setUsuario(iusuario.findById(us.getId_usuario()));
+			icart.guardar(carrito);
+			System.out.println("role y user agregados correctamente");
+			return "redirect:/login";
+
+		} catch (Exception e) {
+			System.out.println("" + e);
+			boolean error = false;
+			model = iusuario.verificarCorreo(us, model);
+
+			model.addAttribute("usuario", us);
+			System.out.println("000000000000000000000000");
+			model.addAttribute("slideregi","error encontrado");
+			return "login";
+
+		}
+
 	}
 
 	// VER PRODUCTOS

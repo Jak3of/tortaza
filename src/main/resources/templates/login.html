@@ -15,8 +15,24 @@
 
 	<script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/login.css}" />
+	<script th:if="${slideregi}">
+		$(document).ready(function () {
+			$('#cardregi').css('z-index', '50');
+			$('#cardlog').css('z-index', '100');
+			$('#cardlog').slideUp();
 
+		});
+	</script>
+	<style>
+		#contrasenar:invalid {
+			border: 2px solid red;
+		}
+
+		#contrasenar:valid {}
+	</style>
 	<script>
+
+
 		$(document).ready(function () {
 
 			$("#regi").click(function () {
@@ -29,6 +45,8 @@
 			});
 
 		});
+
+		
 	</script>
 
 
@@ -120,42 +138,59 @@
 
 					<div class="mb-4">
 						<label for="email" class="form-label" required>Correo Electronico:</label>
-						<input type="email" class="form-control" name="correo">
+						<div class="error" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
+						<div class="error" th:if="${emailerror}">
+							<span th:text="${emailerror.content}">
+							</span>
+						</div>
+						<input type="email" class="form-control" placeholder="Ingrese su correo" th:field="*{correo}"
+							required>
 					</div>
 					<div class="mb-4">
 						<label for="password" class="form-label" required>Contraseña:</label>
-
-						<input type="password" class="form-control" id="contrasena" name="contrasena"
-							placeholder="Ingrese descripcion contrasena" autocomplete="off" required>
+						<input type="password" class="form-control" id="contrasenar" th:field="*{contrasena}"
+							placeholder="Acepta minimo 8 caracteres, una letra MAYUS y un numero" autocomplete="off"
+							pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+						<div class="error" th:if="${errorcontrasena}" >
+						<span th:text="${errorcontrasena.content}">
+                            </span>
+						</div>
 					</div>
 					<div class="mb-4">
 						<label for="nombre" class="form-label" required>Nombres:</label>
 
-						<input type="text" class="form-control" id="nombre" name="nombre"
-							placeholder="Ingrese descripcion Nombre" autocomplete="off" required>
+						<input type="text" class="form-control" id="nombre" th:field="*{nombre}"
+							placeholder="Ingrese su Nombre" autocomplete="off" required>
+						<div class="error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
 					</div>
 					<div class="mb-4">
 						<label for="apellido" class="form-label" required>apellido:</label>
 
-						<input type="text" class="form-control" id="apellido" name="apellido"
-							placeholder="Ingrese descripcion apellido" autocomplete="off" required>
+						<input type="text" class="form-control" id="apellido" th:field="*{apellido}"
+							placeholder="Ingrese su apellido" autocomplete="off" required>
+						<div class="error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
 					</div>
 					<div class="mb-4">
-                        <label for="dni" class="form-label" required>dni:</label>
+						<label for="dni" class="form-label" required>dni:</label>
+						<div class="error" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+						<div class="error" th:if="${dnierror}">
+							<span th:text="${dnierror.content}"></span>
+						</div>
+						<input type="text" class="form-control" id="dni" th:field="*{dni}" placeholder="Ingrese su DNI "
+							autocomplete="off" required>
+					</div>
 
-                        <input type="text" class="form-control" id="dni" name="dni"
-                            placeholder="Ingrese DNI " autocomplete="off" required>
-                    </div>
-					
 					<div class="mb-4">
 						<label for="direccion" class="form-label" required>Dirección:</label>
 
-						<input type="text" class="form-control" id="direccion_inicial" name="direccion_inicial"
-							placeholder="Ingrese descripcion direccion_inicial" autocomplete="off" required>
+						<input type="text" class="form-control" id="direccion_inicial" th:field="*{direccion_inicial}"
+							placeholder="Ingrese su direccion completa" autocomplete="off" required>
+						<div class="error" th:if="${#fields.hasErrors('direccion_inicial')}"
+							th:errors="*{direccion_inicial}"></div>
 					</div>
 					<div class="mb-4 form-check">
 						<input type="checkbox" name="connected" class="form-check-input">
-						<label for="connected" class="form-check-label">Aceptar los <a href="">Terminos y
+						<label for="connected" class="form-check-label"><a href="">Aceptar los Terminos y
 								Condiciones</a></label>
 					</div>
 					<div class="d-grid">

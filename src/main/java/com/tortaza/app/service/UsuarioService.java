@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import com.tortaza.app.helper.Message;
 import com.tortaza.app.models.Rol;
 import com.tortaza.app.models.Usuario;
 
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 
 @Service
 public class UsuarioService implements IUsuariosService, UserDetailsService {
@@ -41,6 +43,8 @@ public class UsuarioService implements IUsuariosService, UserDetailsService {
         boolean ins = false;
         for (var us : dato.findAll()) {
             if (u.getCorreo().equals(us.getCorreo()) && u.getContrasena().equals(us.getContrasena())) {
+            	PasswordEncoder password=new BCryptPasswordEncoder();
+            	boolean passwordCifrado=password.matches(us.getContrasena(), u.getContrasena());
                 return true;
             }
         }
@@ -54,6 +58,7 @@ public class UsuarioService implements IUsuariosService, UserDetailsService {
 		String passwordCifrado=password.encode(u.getContrasena());
         // aqui se guarda al usuario
         u.setContrasena(passwordCifrado);
+        System.out.println(passwordCifrado);
         Usuario usuario = dato.save(u);
         if (!usuario.equals(null)) {
             res = 1;
@@ -61,7 +66,32 @@ public class UsuarioService implements IUsuariosService, UserDetailsService {
         return res;
 
     }
-    
+    public Model verificarCorreo(Usuario us,Model model) {
+
+		for (Usuario usuario : dato.findAll()) {
+			if (usuario.getCorreo().equals(us.getCorreo())) {
+				model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
+
+			}
+			if (usuario.getDni().equals(us.getDni())) {
+				model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
+			}
+		}
+		return model;
+	}
+
+	public boolean verificarDni(Usuario us) {
+
+		boolean a = false;
+		for (Usuario usuario : dato.findAll()) {
+			if (usuario.getDni().equals(us.getDni())) {
+				a = true;
+			}
+			
+
+		}
+		return a;
+	}
    
 
     @Override

@@ -3,6 +3,7 @@ package com.tortaza.app.models;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,15 +18,22 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer cartId;
+    
+    @OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name="id_usuario",nullable=false,unique=true)
+	private Usuario usuario;
 
     @OneToMany(mappedBy = "cart")
 	private List<CartDetails> detalle;
     
     private double total;
 
-	public Cart(Integer cartId, List<CartDetails> detalle, double total) {
+	
+
+	public Cart(Integer cartId, Usuario usuario, List<CartDetails> detalle, double total) {
 		super();
 		this.cartId = cartId;
+		this.usuario = usuario;
 		this.detalle = detalle;
 		this.total = total;
 	}
@@ -64,6 +72,14 @@ public class Cart {
 
 	public void setTotal(double total) {
 		this.total = total;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
     
     
