@@ -42,10 +42,10 @@ public class UsuarioService implements IUsuariosService, UserDetailsService {
     public boolean validU(Usuario u) {
         boolean ins = false;
         for (var us : dato.findAll()) {
-            if (u.getCorreo().equals(us.getCorreo()) && u.getContrasena().equals(us.getContrasena())) {
+            if (u.getCorreo().equals(us.getCorreo())) {
             	PasswordEncoder password=new BCryptPasswordEncoder();
-            	boolean passwordCifrado=password.matches(us.getContrasena(), u.getContrasena());
-                return true;
+            	ins=password.matches(u.getContrasena(), us.getContrasena());
+                return ins;
             }
         }
         return ins;

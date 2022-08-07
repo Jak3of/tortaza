@@ -16,7 +16,6 @@ import com.tortaza.app.models.*;
 import com.tortaza.app.service.*;
 import com.tortaza.app.services.CarritoProducto;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +71,7 @@ public class Indexcontroller {
 
 	@Autowired
 	private IPedidoDAO pedidoDAO;
-	
+
 	@Autowired
 	private CartService icart;
 
@@ -94,14 +93,34 @@ public class Indexcontroller {
 	// loguearse
 	@PostMapping("/login")
 	public String loguear(Usuario u, Model model) {
-		List<Usuario> Aus = iusuario.listar(); // lista los usuarios
+		List<Rol> rolus = irol.findAll(); // lista los usuarios
 		Usuario usu = new Usuario();// paso1
 		if (iusuario.validU(u)) { // verifica la autentificacion de los datos que vienen de la vista loguearse
-			for (var users : Aus) {
-				if (u.getCorreo().equals(users.getCorreo())) {
-					usu = iusuario.findById(users.getId_usuario());
+			usu = iusuario.findByCorreo(u.getCorreo());
+			if (!usu.getEstadousuario()) {
+				model.addAttribute("ingresar", new Message("Usuario Bloqueado.", ""));
+				model.addAttribute("titulo", "Login");
+
+				return "login";
+			}
+			for (Rol rol : usu.getItemsRoles()) {
+				if (rol.equals(irol.findById(1))) {
+					model.addAttribute("usuario", usu);
+					idu = usu.getId_usuario();
+					return "redirect:perfil";
+				}
+				if (rol.equals(irol.findById(2))) {
+					model.addAttribute("usuario", usu);
+					idu = usu.getId_usuario();
+					return "redirect:/administrar/productos";
+				}
+				if (rol.equals(irol.findById(3))) {
+					model.addAttribute("usuario", usu);
+					idu = usu.getId_usuario();
+					return "redirect:/administrar/productos";
 				}
 			}
+
 			/*
 			 * if (usu.getId_tipousuario() == 1) { model.addAttribute("usuario", usu);
 			 * 
@@ -112,7 +131,7 @@ public class Indexcontroller {
 
 		}
 
-		model.addAttribute("mensaje", "Usuario y/o contraseña incorrectas");
+		model.addAttribute("ingresar", new Message("Usuario y/o contraseña incorrectas", ""));
 		model.addAttribute("titulo", "Login");
 
 		return "login";
@@ -131,29 +150,26 @@ public class Indexcontroller {
 	public String registrarse(@Validated @ModelAttribute("usuario") Usuario us, BindingResult bindingResult,
 			Model model) {
 
-
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("usuario", us);
-			model.addAttribute("slideregi","error encontrado");
+			model.addAttribute("slideregi", "error encontrado");
 			System.out.println("binding");
 			model = iusuario.verificarCorreo(us, model);
 			return "login";
 		}
-		
-		
-		String path="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
-		
+
+		String path = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
+
 		if (!us.getContrasena().matches(path)) {
 			System.out.println("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero");
-			model.addAttribute("errorcontrasena", new Message("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero",""));
+			model.addAttribute("errorcontrasena",
+					new Message("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero", ""));
 		}
-		
-		
-		
+
 		Rol roluser = irol.findById(1);
 		us.addRole(roluser);
 		System.out.println("rol seteado");
-		us.setEstadousuario(false); // chancara a los valores por
+		us.setEstadousuario(true); // chancara a los valores por
 		// us.setDni(00000000);
 		try {
 			model.addAttribute("mensaje", "Ingrese con su usuario y contraseña");
@@ -171,7 +187,7 @@ public class Indexcontroller {
 
 			model.addAttribute("usuario", us);
 			System.out.println("000000000000000000000000");
-			model.addAttribute("slideregi","error encontrado");
+			model.addAttribute("slideregi", "error encontrado");
 			return "login";
 
 		}
@@ -516,11 +532,20 @@ public class Indexcontroller {
 		List<Usuario> usuarios = iusuario.listar();
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
-		for (var u : usuarios) {
-			/*
-			 * if (u.getId_tipousuario() == 1) { if (u.getEstadousuario() == true) {
-			 * us.add(u); } else { usbloq.add(u); } }
-			 */
+		for (Usuario u : usuarios) {
+			
+
+			for (Rol rol : u.getItemsRoles()) {
+				if (rol.equals(irol.findById(1))) {
+					if (u.getEstadousuario() == true) {
+						us.add(u);
+
+					} else {
+						usbloq.add(u);
+					}
+				}
+			}
+
 		}
 		model.addAttribute("Usuarios", us);
 		model.addAttribute("UsuariosBloq", usbloq);
@@ -540,58 +565,49 @@ public class Indexcontroller {
 			Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("Usuario", u);
+			model = iusuario.verificarCorreo(u, model);
 			return "crearusu";
 		}
 		u.setEstadousuario(true);// false= no registra
 		// u.setId_tipousuario(1);
+
+		String path = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
+
+		if (!u.getContrasena().matches(path)) {
+			System.out.println("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero");
+			model.addAttribute("errorcontrasena",
+					new Message("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero", ""));
+		}
+
+		u.addRole(irol.findById(1));
+		System.out.println("rol seteado");
+		u.setEstadousuario(true);
+
 		try {
-			u.addRole(irol.findById(1));
+
 			iusuario.guardar(u);
 			model.addAttribute("message", new Message("El Usuario se ah creado correctamente.", "success"));
 
 			Usuario userDb = iusuario.findById(u.getId_usuario());
-			if (userDb != null) {
-				Rol roleDb = irol.findById(1);
-				if (roleDb != null) {
-					userDb.addRole(roleDb);
-					iusuario.guardar(userDb);
-					System.out.println("role y user agregados correctamente");
-					return "crearusu";
-
-				}
-				System.out.println("No existe el rol");
-
-				System.out.println("objeto:" + irol.findById(1) + "");
-				return "crearusu";
-			}
-
+			Cart carrito = new Cart();
+			carrito.setUsuario(iusuario.findById(u.getId_usuario()));
+			icart.guardar(carrito);
+			System.out.println("role y user agregados correctamente");
+			model.addAttribute("Usuario", new Usuario());
 			return "crearusu";
 
 		} catch (Exception e) {
 			System.out.println("" + e);
-			List<Usuario> usuarios = iusuario.listar();
 			boolean error = false;
-			for (Usuario usuario : usuarios) {
-				if (usuario.getCorreo().equals(u.getCorreo())) {
-					model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
-					System.out.println("333333333333333333333333");
-					error = true;
-				}
-				if (usuario.getDni().toString().equals(u.getDni().toString())) {
-					model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
-					System.out.println("11111111111111111111111");
-					error = true;
-				}
+			model = iusuario.verificarCorreo(u, model);
 
-			}
-			if (error) {
-				model.addAttribute("Usuario", u);
-				System.out.println("000000000000000000000000");
-
-			}
+			model.addAttribute("usuario", u);
+			System.out.println("000000000000000000000000");
+			model.addAttribute("slideregi", "error encontrado");
+			return "crearusu";
 
 		}
-		return "crearusu";
+
 	}
 
 	// editar
@@ -607,43 +623,47 @@ public class Indexcontroller {
 			Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("Usuario", u);
+			model = iusuario.verificarCorreo(u, model);
 			return "editarusu";
 
 		}
 		/* atento */
 		// u.setId_tipousuario(1);
-		u.setEstadousuario(true);
-		try {
-			iusuario.guardar(u);
-			model.addAttribute("message", new Message("El Usuario se ah creado correctamente.", "success"));
-		} catch (Exception e) {
-			Usuario usuarioEdit = iusuario.findById(u.getId_usuario());
-			System.out.println("" + e);
-			List<Usuario> usuarios = iusuario.listar();
-			boolean error = false;
-			for (Usuario usuario : usuarios) {
-				if (usuarioEdit != usuario) {
-					if (usuario.getCorreo().equals(u.getCorreo())) {
-						model.addAttribute("emailerror", new Message("El correo ya existe ", "success"));
-						System.out.println("333333333333333333333333");
-						error = true;
-					}
-					if (usuario.getDni().toString().equals(u.getDni().toString())) {
-						model.addAttribute("dnierror", new Message("El dni ya existe ", "success"));
-						System.out.println("11111111111111111111111");
-						error = true;
-					}
-				}
+		
+		String path = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}";
 
-			}
-			if (error) {
-				model.addAttribute("Usuario", u);
-				System.out.println("000000000000000000000000");
-
-			}
-
+		if (!u.getContrasena().matches(path)) {
+			System.out.println("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero");
+			model.addAttribute("errorcontrasena",
+					new Message("La contraseña debe tener minimo 8 caracteres , una letra mayuscula y un numero", ""));
 		}
-		return "editarusu";
+		
+		
+		
+		try {
+			Usuario usuBd = iusuario.findById(u.getId_usuario());
+			usuBd.setContrasena(u.getContrasena());
+			usuBd.setNombre(u.getNombre());
+			usuBd.setApellido(u.getApellido());
+			usuBd.setCorreo(u.getCorreo());
+			usuBd.setDireccion_inicial(u.getDireccion_inicial());
+			usuBd.setDni(u.getDni());
+			
+			iusuario.guardar(usuBd);
+			
+			
+			model.addAttribute("message", new Message("El Usuario se ah creado correctamente.", "success"));
+			return "crearusu";
+		} catch (Exception e) {
+			System.out.println("" + e);
+			boolean error = false;
+			model = iusuario.verificarCorreo(u, model);
+
+			model.addAttribute("usuario", u);
+			System.out.println("000000000000000000000000");
+			model.addAttribute("slideregi", "error encontrado");
+			return "crearusu";
+		}
 	}
 
 	// bloquear
@@ -656,11 +676,20 @@ public class Indexcontroller {
 		List<Usuario> usuarios = iusuario.listar();
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
-		for (var u : usuarios) {
-			/*
-			 * if (u.getId_tipousuario() == 1) { if (u.getEstadousuario() == true) {
-			 * us.add(u); } else { usbloq.add(u); } }
-			 */
+		for (Usuario u : usuarios) {
+			
+
+			for (Rol rol : u.getItemsRoles()) {
+				if (rol.equals(irol.findById(1))) {
+					if (u.getEstadousuario() == true) {
+						us.add(u);
+
+					} else {
+						usbloq.add(u);
+					}
+				}
+			}
+
 		}
 		model.addAttribute("Usuarios", us);
 		model.addAttribute("UsuariosBloq", usbloq);
@@ -676,11 +705,20 @@ public class Indexcontroller {
 		List<Usuario> usuarios = iusuario.listar();
 		List<Usuario> us = new ArrayList<>();
 		List<Usuario> usbloq = new ArrayList<>();
-		for (var u : usuarios) {
-			/*
-			 * if (u.getId_tipousuario() == 1) { if (u.getEstadousuario() == true) {
-			 * us.add(u); } else { usbloq.add(u); } }
-			 */
+		for (Usuario u : usuarios) {
+			
+
+			for (Rol rol : u.getItemsRoles()) {
+				if (rol.equals(irol.findById(1))) {
+					if (u.getEstadousuario() == true) {
+						us.add(u);
+
+					} else {
+						usbloq.add(u);
+					}
+				}
+			}
+
 		}
 		model.addAttribute("Usuarios", us);
 		model.addAttribute("UsuariosBloq", usbloq);

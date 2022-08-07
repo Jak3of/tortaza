@@ -29,11 +29,11 @@ public class Usuario {
 	private String contrasena;
 
 	@NotBlank
-	@Size(min=6,max = 48, message = "este campo acepta mas de 6 y menos de 48 digitos")
+	@Size(min=3,max = 48, message = "este campo acepta mas de 3 y menos de 48 digitos")
 	private String nombre;
 
 	@NotBlank
-	@Size(min=6,max = 48, message = "este campo acepta mas de 6 y menos de 48 digitos")
+	@Size(min=3,max = 48, message = "este campo acepta mas de 3 y menos de 48 digitos")
 	private String apellido;
 
 	@NotBlank
